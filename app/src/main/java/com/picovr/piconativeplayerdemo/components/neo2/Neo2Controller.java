@@ -66,11 +66,11 @@ public class Neo2Controller extends PicoController {
     @Override
     public boolean getTriggerKeyEvent() {
         boolean triggerEvent;
-        //        if (mIsLeftMain) {
-        triggerEvent = mCVMainController.getTriggerNum() > 200;
-        //        } else {
-        //            triggerEvent = mCVSubController.getTriggerNum() > 200;
-        //        }
+        if (getMainIndex() == 0) {
+            triggerEvent = mCVMainController.getTriggerNum() > 200;
+        } else {
+            triggerEvent = mCVSubController.getTriggerNum() > 200;
+        }
         return triggerEvent;
     }
 
