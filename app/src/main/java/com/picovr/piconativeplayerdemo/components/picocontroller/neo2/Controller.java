@@ -1,10 +1,11 @@
-package com.picovr.piconativeplayerdemo.components.neo2;
+package com.picovr.piconativeplayerdemo.components.picocontroller.neo2;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
-import com.picovr.piconativeplayerdemo.ObjVertex;
+import com.picovr.piconativeplayerdemo.model.ObjVertex;
 import com.picovr.piconativeplayerdemo.R;
 import com.picovr.piconativeplayerdemo.components.BasicComponent;
 import com.picovr.piconativeplayerdemo.utils.LoadObjUtil;
@@ -93,9 +94,15 @@ public class Controller extends BasicComponent {
     private void initVertexData() {
         ObjVertex objVertex = null;
         if (mController == Neo2Controller.NEO2_CONTROLLER.NEO_CONTROLLER_LEFT) {
-            objVertex = LoadObjUtil.loadFromFile("neo2_controller_left.obj", mContext);
+            objVertex = LoadObjUtil.loadFromSystem("/system/media/images/controller_left.obj");
+            if (objVertex == null) {
+                objVertex = LoadObjUtil.loadFromAssets("neo2_controller_left.obj", mContext);
+            }
         } else {
-            objVertex = LoadObjUtil.loadFromFile("neo2_controller_right.obj", mContext);
+            objVertex = LoadObjUtil.loadFromSystem("/system/media/images/controller_right.obj");
+            if (objVertex == null) {
+                objVertex = LoadObjUtil.loadFromAssets("neo2_controller_right.obj", mContext);
+            }
         }
         mVertexCount = objVertex.getVerticesCount();
         float[] ver = objVertex.getVertices();
@@ -122,7 +129,12 @@ public class Controller extends BasicComponent {
         maTexCoorHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
         muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
 
-        mTexture = TextureUtil.initTexture(mContext, R.drawable.neo2_controller);
+        mTexture = TextureUtil.initTextureFile(mContext,"/system/media/images/controller.png");
+        Log.i("lhc", "initTextureFile " + mTexture);
+        if (mTexture == 0) {
+            mTexture = TextureUtil.initTexture(mContext, R.drawable.neo2_controller);
+            Log.i("lhc", "initTexture " + mTexture);
+        }
     }
 
     private float[] getFinalMatrix()

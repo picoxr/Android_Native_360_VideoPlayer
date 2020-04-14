@@ -1,4 +1,4 @@
-package com.picovr.piconativeplayerdemo.components.g2;
+package com.picovr.piconativeplayerdemo.components.picocontroller.g2;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -57,7 +57,7 @@ public class Raycast extends BasicComponent {
     @Override
     public void onDrawSelf(Eye eye) {
         GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         GLES20.glDisable(GLES20.GL_CULL_FACE);
         GLES20.glUseProgram(mProgram);
 

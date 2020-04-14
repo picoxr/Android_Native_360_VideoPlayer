@@ -1,10 +1,11 @@
-package com.picovr.piconativeplayerdemo.components.g2;
+package com.picovr.piconativeplayerdemo.components.picocontroller.g2;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
-import com.picovr.piconativeplayerdemo.ObjVertex;
+import com.picovr.piconativeplayerdemo.model.ObjVertex;
 import com.picovr.piconativeplayerdemo.R;
 import com.picovr.piconativeplayerdemo.components.BasicComponent;
 import com.picovr.piconativeplayerdemo.utils.LoadObjUtil;
@@ -56,6 +57,7 @@ public class Controller extends BasicComponent {
         ShaderUtil.checkGlError("glUseProgram");
 
         GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glCullFace(GLES20.GL_BACK);
 
         GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, getFinalMatrix(), 0);
         GLES20.glEnableVertexAttribArray(maPositionHandle);
@@ -84,13 +86,17 @@ public class Controller extends BasicComponent {
         GLES20.glDisableVertexAttribArray(maPositionHandle);
         GLES20.glDisableVertexAttribArray(maTexCoorHandle);
         GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
     }
 
     private void initVertexData() {
 
-        ObjVertex objVertex = LoadObjUtil.loadFromFile("g2_controller.obj", mContext);
+        ObjVertex objVertex = null;
+        objVertex = LoadObjUtil.loadFromSystem("/system/media/images/Hummingbird.obj");
+        if (objVertex == null) {
+            objVertex = LoadObjUtil.loadFromAssets("g2_controller.obj", mContext);
+        }
         mVertexCount = objVertex.getVerticesCount();
         float[] ver = objVertex.getVertices();
         float[] uv = objVertex.getUvs();
@@ -116,7 +122,12 @@ public class Controller extends BasicComponent {
         maTexCoorHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
         muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
 
-        mTexture = TextureUtil.initTexture(mContext, R.drawable.g2_controller);
+        mTexture = TextureUtil.initTextureFile(mContext,"/system/media/images/Hummingbird.png");
+        Log.i("lhc", "initTextureFile " + mTexture);
+        if (mTexture == 0) {
+            mTexture = TextureUtil.initTexture(mContext, R.drawable.g2_controller);
+            Log.i("lhc", "initTexture " + mTexture);
+        }
     }
 
     private float[] getFinalMatrix()

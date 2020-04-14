@@ -1,4 +1,4 @@
-package com.picovr.piconativeplayerdemo.components.g2;
+package com.picovr.piconativeplayerdemo.components.picocontroller.g2;
 
 import android.content.Context;
 import android.opengl.Matrix;
@@ -8,7 +8,7 @@ import com.picovr.client.HbController;
 import com.picovr.client.HbListener;
 import com.picovr.client.HbManager;
 import com.picovr.client.Orientation;
-import com.picovr.piconativeplayerdemo.PicoController;
+import com.picovr.piconativeplayerdemo.components.picocontroller.PicoController;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.piconativeplayerdemo.utils.MatrixUtil;
 import com.picovr.vractivity.Eye;

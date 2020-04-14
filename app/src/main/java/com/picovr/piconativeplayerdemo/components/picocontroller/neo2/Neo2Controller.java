@@ -1,4 +1,4 @@
-package com.picovr.piconativeplayerdemo.components.neo2;
+package com.picovr.piconativeplayerdemo.components.picocontroller.neo2;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -8,14 +8,13 @@ import android.util.Log;
 import com.picovr.cvclient.CVController;
 import com.picovr.cvclient.CVControllerListener;
 import com.picovr.cvclient.CVControllerManager;
-import com.picovr.piconativeplayerdemo.PicoController;
-import com.picovr.piconativeplayerdemo.components.g2.Raycast;
+import com.picovr.piconativeplayerdemo.components.picocontroller.PicoController;
+import com.picovr.piconativeplayerdemo.components.picocontroller.g2.Raycast;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.piconativeplayerdemo.utils.MatrixUtil;
 import com.picovr.piconativeplayerdemo.utils.SystemPropertiesUtil;
 import com.picovr.picovrlib.cvcontrollerclient.ControllerClient;
 import com.picovr.vractivity.Eye;
-import com.psmart.vrlib.VrActivity;
 
 public class Neo2Controller extends PicoController {
     public enum NEO2_CONTROLLER {
@@ -100,7 +99,7 @@ public class Neo2Controller extends PicoController {
     }
 
     private int getMainControllerIndex() {
-        int index = Integer.parseInt(SystemPropertiesUtil.getSystemProperties("persist.pvrcon.main.controller","-1"));
+        int index = Integer.parseInt(SystemPropertiesUtil.getSystemProperties("persist.pvrcon.main.controller", "-1"));
         return index;
     }
 
@@ -109,19 +108,19 @@ public class Neo2Controller extends PicoController {
         mRayCast.onFrameBegin(eyes);
         mControllerLeftModel.onFrameBegin(eyes);
         mControllerRightModel.onFrameBegin(eyes);
-        if (DEBUG) {
-//            Log.i("lhc", "onFrameBegin : getPvrHandness" + VrActivity.getPvrHandness(mContext));
+        /*if (DEBUG) {
+            //            Log.i("lhc", "onFrameBegin : getPvrHandness" + VrActivity.getPvrHandness(mContext));
             Log.i("lhc", "onFrameBegin : getMainIndex  " + getMainIndex());
             Log.i("lhc", "onFrameBegin : Main.getSerialNum  " + mCVMainController.getSerialNum());
             Log.i("lhc", "onFrameBegin : Sub.getSerialNum  " + mCVSubController.getSerialNum());
             Log.i("lhc", "onFrameBegin : getMainControllerIndex " + getMainControllerIndex());
-        }
+        }*/
 
-        if (mControllerState == 1) {
-            if (getMainControllerIndex() == 0) {
+        /*if (mControllerState == 1) {
+            if (getMainIndex() == 0) {
                 setLeftOrientation(mCVMainController.getOrientation());
-            } else if (getMainControllerIndex() == 1) {
-                setRightOrientation(mCVMainController.getOrientation());
+            } else if (getMainIndex() == 1) {
+                setRightOrientation(mCVSubController.getOrientation());
             }
         } else if (mControllerState == 2) {
             if (mCVMainController.getSerialNum() == 0) {
@@ -131,14 +130,30 @@ public class Neo2Controller extends PicoController {
                 setRightOrientation(mCVMainController.getOrientation());
                 setLeftOrientation(mCVSubController.getOrientation());
             }
+        }*/
+
+        if (mCVMainController.getConnectState() == 1) {
+            setLeftOrientation(mCVMainController.getOrientation());
+        }
+
+        if (mCVSubController.getConnectState() == 1) {
+            setRightOrientation(mCVSubController.getOrientation());
         }
 
     }
 
     @Override
     public void onDrawSelf(Eye eye) {
+        if (mCVMainController.getConnectState() == 1) {
+            drawController(eye, 15f, mOrientationLeft, mControllerLeftModel, getMainIndex() == 0);
+        }
 
-        if (mControllerState == 1) {
+        if (mCVSubController.getConnectState() == 1) {
+            drawController(eye, -15f, mOrientationRight, mControllerRightModel, getMainIndex() == 1);
+        }
+
+
+        /*if (mControllerState == 1) {
             if (getMainControllerIndex() == 0) {
                 drawController(eye, 15f, mOrientationLeft, mControllerLeftModel, true);
             } else if (getMainControllerIndex() == 1) {
@@ -147,7 +162,7 @@ public class Neo2Controller extends PicoController {
         } else if (mControllerState == 2) {
             drawController(eye, 15f, mOrientationLeft, mControllerLeftModel, getMainIndex() == 0);
             drawController(eye, -15f, mOrientationRight, mControllerRightModel, getMainIndex() == 1);
-        }
+        }*/
     }
 
     private void drawController(Eye eye, float v, float[] orientation, Controller controller, boolean isMain) {
@@ -158,6 +173,7 @@ public class Neo2Controller extends PicoController {
 
         GLES20.glDisable(GLES20.GL_BLEND);
         GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glCullFace(GLES20.GL_BACK);
 
         MatrixTool.pushMatrix();
         MatrixTool.rotate(90, 1, 0, 0);
@@ -167,7 +183,7 @@ public class Neo2Controller extends PicoController {
         MatrixTool.popMatrix();
 
         GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         if (isMain) {
             MatrixTool.pushMatrix();
@@ -188,6 +204,11 @@ public class Neo2Controller extends PicoController {
 
     private CVControllerListener mCVControllerListener = new CVControllerListener() {
         @Override
+        public void onBindSuccess() {
+            setIsController(mCVMainController.getConnectState() + mCVSubController.getConnectState());
+        }
+
+        @Override
         public void onBindFail() {
 
         }
@@ -200,7 +221,7 @@ public class Neo2Controller extends PicoController {
         @Override
         public void onConnectStateChanged(int i, int i1) {
             if (DEBUG)
-                Log.i("lhc", "onConnectStateChanged ： " + i + " " + ControllerClient.getMainControllerIndex() );
+                Log.i("lhc", "onConnectStateChanged ： " + i + " " + ControllerClient.getMainControllerIndex());
             setIsController(mCVMainController.getConnectState() + mCVSubController.getConnectState());
         }
 
@@ -213,6 +234,11 @@ public class Neo2Controller extends PicoController {
             //            setIsLeftMain();
             mCVMainController = mCVControllerManager.getMainController();
             mCVSubController = mCVControllerManager.getSubController();
+
+        }
+
+        @Override
+        public void onChannelChanged(int i, int i1) {
 
         }
     };

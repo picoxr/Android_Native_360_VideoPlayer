@@ -3,61 +3,88 @@ package com.picovr.piconativeplayerdemo.utils;
 import android.content.Context;
 import android.util.Log;
 
-import com.picovr.piconativeplayerdemo.ObjVertex;
+import com.picovr.piconativeplayerdemo.model.ObjVertex;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class LoadObjUtil {
 
-    public static ObjVertex loadFromFile(String fname, Context context) {
-        Log.i("lhc", "loadFromFile");
+    public static ObjVertex loadFromSystem(String fPath) {
+        Log.i("lhc", "loadFromSystem");
+        ObjVertex objVertex = null;
+        File objFile = new File(fPath);
+        try {
+            Log.i("lhc", "loadFromSystem " + objFile.exists() + " " + objFile.canRead());
+            if (objFile.exists() && objFile.canRead()) {
+                InputStream in = new FileInputStream(objFile);
+                objVertex = getObjVertex(in);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return objVertex;
+    }
+
+    public static ObjVertex loadFromAssets(String fName, Context context) {
+        Log.i("lhc", "loadFromAssets");
+        ObjVertex objVertex = null;
+        try {
+            InputStream in = context.getAssets().open(fName);
+            objVertex = getObjVertex(in);
+
+        } catch (Exception e) {
+            Log.e("lhc", "load error");
+            e.printStackTrace();
+        }
+        return objVertex;
+    }
+
+    private static ObjVertex getObjVertex(InputStream in) throws IOException {
+        InputStreamReader isr = new InputStreamReader(in);
+        BufferedReader br = new BufferedReader(isr);
+        ObjVertex objVertex = null;
         ArrayList<Float> vec_vertices = new ArrayList<>();
         ArrayList<Float> res_vertices = new ArrayList<>();
         ArrayList<Float> vec_uvs = new ArrayList<>();
         ArrayList<Float> res_uvs = new ArrayList<>();
         ArrayList<Float> vec_normals = new ArrayList<>();
         ArrayList<Float> res_normals = new ArrayList<>();
-        ObjVertex objVertex = null;
-        try {
-            InputStream in = context.getAssets().open(fname);
-            InputStreamReader isr = new InputStreamReader(in);
-            BufferedReader br = new BufferedReader(isr);
-            String temps;
-            while ((temps = br.readLine()) != null) {
-                String[] tempsa = temps.split("[ ]+");
-                if (tempsa[0].trim().equals("v")) {
-                    vec_vertices.add(Float.parseFloat(tempsa[1]));
-                    vec_vertices.add(Float.parseFloat(tempsa[2]));
-                    vec_vertices.add(Float.parseFloat(tempsa[3]));
-                } else if (tempsa[0].trim().equals("vt")) {
-                    vec_uvs.add(Float.parseFloat(tempsa[1]));
-                    vec_uvs.add(1 - Float.parseFloat(tempsa[2]));
-                } else if (tempsa[0].trim().equals("vn")) {
-                    vec_normals.add(Float.parseFloat(tempsa[1]));
-                    vec_normals.add(Float.parseFloat(tempsa[2]));
-                    vec_normals.add(Float.parseFloat(tempsa[3]));
-                } else if (tempsa[0].trim().equals("f")) {
-                    int length = tempsa.length;
-                    for (int i = 1; i < length - 2; i++) {
-                        String[] temp = tempsa[1].split("/");
-                        setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
-                        temp = tempsa[i + 1].split("/");
-                        setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
-                        temp = tempsa[i + 2].split("/");
-                        setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
-                    }
+        String temps;
+        while ((temps = br.readLine()) != null) {
+            String[] tempsa = temps.split("[ ]+");
+            if (tempsa[0].trim().equals("v")) {
+                vec_vertices.add(Float.parseFloat(tempsa[1]));
+                vec_vertices.add(Float.parseFloat(tempsa[2]));
+                vec_vertices.add(Float.parseFloat(tempsa[3]));
+            } else if (tempsa[0].trim().equals("vt")) {
+                vec_uvs.add(Float.parseFloat(tempsa[1]));
+                vec_uvs.add(1 - Float.parseFloat(tempsa[2]));
+            } else if (tempsa[0].trim().equals("vn")) {
+                vec_normals.add(Float.parseFloat(tempsa[1]));
+                vec_normals.add(Float.parseFloat(tempsa[2]));
+                vec_normals.add(Float.parseFloat(tempsa[3]));
+            } else if (tempsa[0].trim().equals("f")) {
+                int length = tempsa.length;
+                for (int i = 1; i < length - 2; i++) {
+                    String[] temp = tempsa[1].split("/");
+                    setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
+                    temp = tempsa[i + 1].split("/");
+                    setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
+                    temp = tempsa[i + 2].split("/");
+                    setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
                 }
             }
-
-            objVertex = new ObjVertex(res_vertices, res_uvs, res_normals);
-
-        } catch (Exception e) {
-            Log.e("lhc", "load error");
-            e.printStackTrace();
         }
+
+        objVertex = new ObjVertex(res_vertices, res_uvs, res_normals);
         return objVertex;
     }
 

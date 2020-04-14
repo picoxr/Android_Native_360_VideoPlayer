@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.opengl.GLES20;
 import android.view.Surface;
 
 import com.picovr.piconativeplayerdemo.components.BasicComponent;
@@ -58,6 +59,9 @@ public class Player extends BasicComponent implements SurfaceTexture.OnFrameAvai
 
     @Override
     public void onDrawSelf(Eye eye) {
+        GLES20.glEnable(GLES20.GL_CULL_FACE); //Open back clipping
+        GLES20.glCullFace(GLES20.GL_FRONT);
+
         synchronized (this){
             if (mUpdateSurface){
                 mSurfaceTexture.updateTexImage();
@@ -68,6 +72,7 @@ public class Player extends BasicComponent implements SurfaceTexture.OnFrameAvai
         MatrixTool.pushMatrix();
         mPlayer360.onDrawSelf(eye);
         MatrixTool.popMatrix();
+        GLES20.glDisable(GLES20.GL_CULL_FACE);
 
     }
 

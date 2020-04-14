@@ -1,4 +1,4 @@
-package com.picovr.piconativeplayerdemo;
+package com.picovr.piconativeplayerdemo.model;
 
 import android.util.Log;
 

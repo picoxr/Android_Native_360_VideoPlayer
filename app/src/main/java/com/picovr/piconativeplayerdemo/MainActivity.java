@@ -9,8 +9,9 @@ import android.view.KeyEvent;
 
 import com.picovr.piconativeplayerdemo.components.CrossHair;
 import com.picovr.piconativeplayerdemo.components.controllerpanel.ControllerPanel;
-import com.picovr.piconativeplayerdemo.components.g2.Hummingbird;
-import com.picovr.piconativeplayerdemo.components.neo2.Neo2Controller;
+import com.picovr.piconativeplayerdemo.components.picocontroller.PicoController;
+import com.picovr.piconativeplayerdemo.components.picocontroller.g2.Hummingbird;
+import com.picovr.piconativeplayerdemo.components.picocontroller.neo2.Neo2Controller;
 import com.picovr.piconativeplayerdemo.components.playercanvas.Player;
 import com.picovr.piconativeplayerdemo.pickup.PickUpManager;
 import com.picovr.piconativeplayerdemo.pickup.TouchableObject;
@@ -38,6 +39,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PickUpManager.getInstance().setNearAndFar(Z_NEAR, Z_FAR);
+//        nativeSetMultisamples(nativePtr,2);
 
         String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.test360;
         mPlayer = new Player(this, videoPath);
