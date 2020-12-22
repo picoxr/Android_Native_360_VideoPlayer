@@ -73,7 +73,6 @@ public class Player extends BasicComponent implements SurfaceTexture.OnFrameAvai
         mPlayer360.onDrawSelf(eye);
         MatrixTool.popMatrix();
         GLES20.glDisable(GLES20.GL_CULL_FACE);
-
     }
 
     @Override
@@ -105,7 +104,24 @@ public class Player extends BasicComponent implements SurfaceTexture.OnFrameAvai
         Surface surface = new Surface(mSurfaceTexture);
         mMediaPlayer.setSurface(surface);
         surface.release();
-        mMediaPlayer.start();
+//        mMediaPlayer.start();
+    }
+
+    public void onPause() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying())
+            mMediaPlayer.pause();
+    }
+
+    public void onResume() {
+        if (mMediaPlayer != null && !mMediaPlayer.isPlaying())
+            mMediaPlayer.start();
+    }
+
+    public void onDestroy() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+        }
     }
 
     public boolean isPlaying() {

@@ -51,19 +51,26 @@ public class MainActivity extends VRActivity implements RenderInterface {
         } else if (Build.MODEL.toLowerCase().contains("neo")) {
             mPicoController = new Neo2Controller(this);
         }
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mPicoController.onResume();
+        mPlayer.onResume();
     }
 
     @Override
     protected void onPause() {
         mPicoController.onPause();
+        mPlayer.onPause();
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPlayer.onDestroy();
+        super.onDestroy();
     }
 
     @Override
