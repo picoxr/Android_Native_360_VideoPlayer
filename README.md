@@ -1,5 +1,6 @@
 # Android_Native_360_VideoPlayer
 
+- If you have any questions/comments, please visit [**Pico Developer Answers**](https://devanswers.pico-interactive.com/) and raise your question there.
 
 ## Introduction
 
@@ -14,5 +15,4 @@ Download [test video](https://internal-picocloud.picovr.com:8443/picocloud/f/8c0
 ![image](https://github.com/picoxr/Android_Native_360_VideoPlayer/blob/master/player.png?raw=true)
 ![image](https://github.com/picoxr/Android_Native_360_VideoPlayer/blob/master/controller.png?raw=true)
 
-## Note:
-- If you have any questions/comments, please raise requests at [**PicoDevSupport Portal**](https://picodevsupport.atlassian.net/servicedesk/customer/user/login?
+
