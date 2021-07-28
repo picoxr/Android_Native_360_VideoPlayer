@@ -3,7 +3,7 @@
 
 ## Introduction
 
-This demo shows how to play a 360 video using [Pico Android Native SDK](http://us-dev.picovr.com/sdk/index?id=49).
+This demo shows how to play a 360 video using [Pico Android Native SDK](https://developer.pico-interactive.com/sdk/index?id=6).
 
 ## Usage
 
