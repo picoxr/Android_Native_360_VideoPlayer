@@ -12,6 +12,7 @@ import com.picovr.piconativeplayerdemo.components.picocontroller.PicoController;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.piconativeplayerdemo.utils.MatrixUtil;
 import com.picovr.vractivity.Eye;
+import com.picovr.vractivity.HmdState;
 
 public class Hummingbird extends PicoController {
 
@@ -24,11 +25,39 @@ public class Hummingbird extends PicoController {
     private float[] mOrientation = new float[16];
     private Raycast mRayCast;
     private Controller mController;
+    private HbListener mHbListener = new HbListener() {
+        @Override
+        public void onConnect() {
+            setIsController(2);
+            Log.i("lhc", "onConnect : update  true");
+        }
 
+        @Override
+        public void onDisconnect() {
+            setIsController(0);
+            Log.i("lhc", "onDisconnect : update false");
+        }
+
+        @Override
+        public void onDataUpdate() {
+            setIsController(mHbController.getConnectState());
+            setOrientation(mHbController.getOrientation());
+        }
+
+        @Override
+        public void onReCenter() {
+
+        }
+
+        @Override
+        public void onBindService() {
+
+        }
+    };
 
     public Hummingbird(Context context) {
         super(context);
-        mRayCast = new Raycast(context,0.08f,65,N);
+        mRayCast = new Raycast(context, 0.08f, 65, N);
         mController = new Controller(context);
 
         mHbManager = new HbManager(context);
@@ -70,9 +99,9 @@ public class Hummingbird extends PicoController {
     }
 
     @Override
-    public void onFrameBegin(float[] eyes) {
-        mRayCast.onFrameBegin(eyes);
-        mController.onFrameBegin(eyes);
+    public void onFrameBegin(float[] eyes, HmdState hmdState) {
+        mRayCast.onFrameBegin(eyes, hmdState);
+        mController.onFrameBegin(eyes, hmdState);
     }
 
     @Override
@@ -85,7 +114,7 @@ public class Hummingbird extends PicoController {
         MatrixTool.pushMatrix();
         MatrixTool.rotate(90, 1, 0, 0);
         MatrixTool.rotate(180, 0, 0, 1);
-        MatrixTool.scale(1000f,1000f,1000f);
+        MatrixTool.scale(1000f, 1000f, 1000f);
         mController.onDrawSelf(eye);
         MatrixTool.popMatrix();
 
@@ -100,34 +129,4 @@ public class Hummingbird extends PicoController {
     private void setOrientation(Orientation orientation) {
         mOrientation = MatrixUtil.quaternion2Matrix(new float[]{orientation.x, -orientation.z, orientation.y, orientation.w});
     }
-
-    private HbListener mHbListener = new HbListener() {
-        @Override
-        public void onConnect() {
-            setIsController(2);
-            Log.i("lhc", "onConnect : update  true");
-        }
-
-        @Override
-        public void onDisconnect() {
-            setIsController(0);
-            Log.i("lhc", "onDisconnect : update false");
-        }
-
-        @Override
-        public void onDataUpdate() {
-            setIsController(mHbController.getConnectState());
-            setOrientation(mHbController.getOrientation());
-        }
-
-        @Override
-        public void onReCenter() {
-
-        }
-
-        @Override
-        public void onBindService() {
-
-        }
-    };
 }

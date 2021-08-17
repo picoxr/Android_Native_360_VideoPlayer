@@ -12,6 +12,7 @@ import com.picovr.piconativeplayerdemo.utils.MatrixUtil;
 import com.picovr.piconativeplayerdemo.utils.ShaderUtil;
 import com.picovr.piconativeplayerdemo.utils.TextureUtil;
 import com.picovr.vractivity.Eye;
+import com.picovr.vractivity.HmdState;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -50,7 +51,7 @@ public class Raycast extends BasicComponent {
     }
 
     @Override
-    public void onFrameBegin(float[] eyes) {
+    public void onFrameBegin(float[] eyes, HmdState hmdState) {
         System.arraycopy(eyes, 0, mCameraMatrix, 0, 16);
     }
 

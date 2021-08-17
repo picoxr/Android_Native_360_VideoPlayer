@@ -9,6 +9,7 @@ import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.piconativeplayerdemo.utils.ShaderUtil;
 import com.picovr.piconativeplayerdemo.utils.TextureUtil;
 import com.picovr.vractivity.Eye;
+import com.picovr.vractivity.HmdState;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -57,7 +58,7 @@ public class CrossHair extends BasicComponent {
     }
 
     @Override
-    public void onFrameBegin(float[] eyes) {
+    public void onFrameBegin(float[] eyes, HmdState hmdState) {
         System.arraycopy(eyes, 0, mCameraMatrix, 0, 16);
     }
 

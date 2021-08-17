@@ -8,6 +8,7 @@ import com.picovr.piconativeplayerdemo.pickup.PickUpManager;
 import com.picovr.piconativeplayerdemo.pickup.TouchableObject;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.vractivity.Eye;
+import com.picovr.vractivity.HmdState;
 
 public class ControllerPanel extends BasicComponent {
 
@@ -30,8 +31,8 @@ public class ControllerPanel extends BasicComponent {
     }
 
     @Override
-    public void onFrameBegin(float[] eyes) {
-        mStartButton.onFrameBegin(eyes);
+    public void onFrameBegin(float[] eyes, HmdState hmdState) {
+        mStartButton.onFrameBegin(eyes, hmdState);
         mStartButton.setIsPlaying(mIsPlaying);
     }
 

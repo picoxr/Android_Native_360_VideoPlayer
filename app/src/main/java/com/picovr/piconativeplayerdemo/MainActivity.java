@@ -11,7 +11,7 @@ import com.picovr.piconativeplayerdemo.components.CrossHair;
 import com.picovr.piconativeplayerdemo.components.controllerpanel.ControllerPanel;
 import com.picovr.piconativeplayerdemo.components.picocontroller.PicoController;
 import com.picovr.piconativeplayerdemo.components.picocontroller.g2.Hummingbird;
-import com.picovr.piconativeplayerdemo.components.picocontroller.neo2.Neo2Controller;
+import com.picovr.piconativeplayerdemo.components.picocontroller.neo.NeoController;
 import com.picovr.piconativeplayerdemo.components.playercanvas.Player;
 import com.picovr.piconativeplayerdemo.pickup.PickUpManager;
 import com.picovr.piconativeplayerdemo.pickup.TouchableObject;
@@ -34,13 +34,14 @@ public class MainActivity extends VRActivity implements RenderInterface {
     private PicoController mPicoController;
     private CrossHair mCrossHair;
     private float[] mCamera = new float[16];
+    private float[] mHeadView = new float[16];
+    private boolean trigerClick = false;
+    private TouchableObject mClickObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PickUpManager.getInstance().setNearAndFar(Z_NEAR, Z_FAR);
-//        nativeSetMultisamples(nativePtr,2);
-
         String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.test360;
         mPlayer = new Player(this, videoPath);
         mCrossHair = new CrossHair(this);
@@ -48,16 +49,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
         mControllerPanel.setOnClickListener(mPlayer);
         if (Build.MODEL.toLowerCase().contains("g2")) {
             mPicoController = new Hummingbird(this);
-        } else if (Build.MODEL.toLowerCase().contains("neo")) {
-            mPicoController = new Neo2Controller(this);
+        } else if (Build.MODEL.toLowerCase().contains("neo 2")) {
+            mPicoController = new NeoController(this, 2);
+        } else if (Build.MODEL.toLowerCase().contains("neo 3")) {
+            mPicoController = new NeoController(this, 3);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mPicoController.onResume();
-        mPlayer.onResume();
     }
 
     @Override
@@ -68,6 +64,13 @@ public class MainActivity extends VRActivity implements RenderInterface {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mPicoController.onResume();
+        mPlayer.onResume();
+    }
+
+    @Override
     protected void onDestroy() {
         mPlayer.onDestroy();
         super.onDestroy();
@@ -75,15 +78,20 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (DEBUG)
+        if (DEBUG) {
             Log.i("lhc", "onKeyDown" + keyCode);
+        }
         if (keyCode == 1001) {
             click();
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    private float[] mHeadView = new float[16];
+    private void click() {
+        if (mClickObject != null) {
+            mClickObject.onClick();
+        }
+    }
 
     @Override
     public void onFrameBegin(HmdState hmdState) {
@@ -95,12 +103,12 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Matrix.multiplyMM(eyes, 0, headView, 0, mCamera, 0);
         if (!mPicoController.isController()) {
             PickUpManager.getInstance().setPickUpMatrix(eyes);
-            mCrossHair.onFrameBegin(eyes);
+            mCrossHair.onFrameBegin(eyes, hmdState);
         } else {
-            mPicoController.onFrameBegin(eyes);
+            mPicoController.onFrameBegin(eyes, hmdState);
         }
-        mPlayer.onFrameBegin(eyes);
-        mControllerPanel.onFrameBegin(eyes);
+        mPlayer.onFrameBegin(eyes, hmdState);
+        mControllerPanel.onFrameBegin(eyes, hmdState);
         mControllerPanel.setIsPlaying(mPlayer.isPlaying());
 
         setOrientation(headOrientation);
@@ -110,15 +118,9 @@ public class MainActivity extends VRActivity implements RenderInterface {
         mHeadView = MatrixUtil.quaternion2Matrix(new float[]{orientation[2], -orientation[0], -orientation[1], orientation[3]});
     }
 
-    private boolean trigerClick = false;
-
     @Override
     public void onDrawEye(Eye eye) {
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-//        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-//        GLES20.glEnable(GLES20.GL_CULL_FACE);
-//        GLES20.glEnable(GLES20.GL_BLEND);
-//        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         MatrixTool.pushMatrix();
         mPlayer.onDrawSelf(eye);
@@ -165,16 +167,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
         }
     }
 
-    private TouchableObject mClickObject;
-
     private void setClick(TouchableObject object) {
         mClickObject = object;
-    }
-
-    private void click() {
-        if (mClickObject != null) {
-            mClickObject.onClick();
-        }
     }
 
     @Override
@@ -215,14 +209,9 @@ public class MainActivity extends VRActivity implements RenderInterface {
         mControllerPanel.onInitGL(frustum);
     }
 
-    private float[] setFrustumM(float near, float far, float left, float right, float bottom, float top, int offset) {
-        float[] frustum = new float[16];
-        float l = (float) (-Math.tan(Math.toRadians(left))) * near;
-        float r = (float) Math.tan(Math.toRadians(right)) * near;
-        float b = (float) (-Math.tan(Math.toRadians(bottom))) * near;
-        float t = (float) Math.tan(Math.toRadians(top)) * near;
-        Matrix.frustumM(frustum, offset, l, r, b, t, near, far);
-        return frustum;
+    @Override
+    public void deInitGL() {
+
     }
 
     @Override
@@ -235,5 +224,13 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     }
 
-
+    private float[] setFrustumM(float near, float far, float left, float right, float bottom, float top, int offset) {
+        float[] frustum = new float[16];
+        float l = (float) (-Math.tan(Math.toRadians(left))) * near;
+        float r = (float) Math.tan(Math.toRadians(right)) * near;
+        float b = (float) (-Math.tan(Math.toRadians(bottom))) * near;
+        float t = (float) Math.tan(Math.toRadians(top)) * near;
+        Matrix.frustumM(frustum, offset, l, r, b, t, near, far);
+        return frustum;
+    }
 }

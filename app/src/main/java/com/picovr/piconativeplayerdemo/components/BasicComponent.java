@@ -3,6 +3,7 @@ package com.picovr.piconativeplayerdemo.components;
 import android.content.Context;
 
 import com.picovr.vractivity.Eye;
+import com.picovr.vractivity.HmdState;
 
 public abstract class BasicComponent {
 
@@ -12,7 +13,7 @@ public abstract class BasicComponent {
     }
 
     public abstract void onInitGL(float[] frustum);
-    public abstract void onFrameBegin(float[] eyes);
+    public abstract void onFrameBegin(float[] eyes, HmdState hmdState);
     public abstract void onDrawSelf(Eye eye);
 
 }

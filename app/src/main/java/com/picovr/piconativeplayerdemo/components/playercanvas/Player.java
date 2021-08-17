@@ -11,6 +11,7 @@ import com.picovr.piconativeplayerdemo.components.BasicComponent;
 import com.picovr.piconativeplayerdemo.pickup.TouchableObject;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.vractivity.Eye;
+import com.picovr.vractivity.HmdState;
 
 import java.io.IOException;
 
@@ -53,8 +54,8 @@ public class Player extends BasicComponent implements SurfaceTexture.OnFrameAvai
     }
 
     @Override
-    public void onFrameBegin(float[] eyes) {
-        mPlayer360.onFrameBegin(eyes);
+    public void onFrameBegin(float[] eyes, HmdState hmdState) {
+        mPlayer360.onFrameBegin(eyes, hmdState);
     }
 
     @Override
