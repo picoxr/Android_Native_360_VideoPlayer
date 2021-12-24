@@ -42,6 +42,6 @@ public class MatrixUtil {
         for (int i = 0; i < Q.length; i++) {
             sb.append(Q[i]).append(", ");
         }
-        Log.i("lhc",tag + " " + sb.toString());
+        Log.i("lhc", tag + " " + sb.toString());
     }
 }

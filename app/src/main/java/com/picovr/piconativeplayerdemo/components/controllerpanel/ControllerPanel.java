@@ -40,13 +40,12 @@ public class ControllerPanel extends BasicComponent {
     public void onDrawSelf(Eye eye) {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glEnable(GLES20.GL_BLEND);
-//        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         MatrixTool.pushMatrix();
         MatrixTool.translate(-50f, 0, 0);
         MatrixTool.rotate(-90f, 1, 0, 0);
-        MatrixTool.rotate(90,0,1,0);
+        MatrixTool.rotate(90, 0, 1, 0);
         mStartButton.onDrawSelf(eye);
         MatrixTool.popMatrix();
     }

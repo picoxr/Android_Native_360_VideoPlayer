@@ -53,11 +53,8 @@ public class Controller extends BasicComponent {
 
     @Override
     public void onDrawSelf(Eye eye) {
-
-        ShaderUtil.checkGlError("glUseProgram");
         GLES20.glUseProgram(mProgram);
         ShaderUtil.checkGlError("glUseProgram");
-
 
         GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, getFinalMatrix(), 0);
         GLES20.glEnableVertexAttribArray(maPositionHandle);
@@ -91,33 +88,29 @@ public class Controller extends BasicComponent {
         float[] mVPMatrix = new float[16];
         Matrix.multiplyMM(mVPMatrix, 0, mVMatrix, 0, MatrixTool.getCurrentMatrix(), 0);
         Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVPMatrix, 0);
+//        if (mController == NeoController.NEO_CONTROLLER.NEO3_CONTROLLER_RIGHT | mController == NeoController.NEO_CONTROLLER.NEO3_CONTROLLER_LEFT) {
+//            Matrix.scaleM(mVPMatrix, 0, 0.02f, 0.02f, 0.02f);
+//        }
         return mVPMatrix;
     }
 
     private void initVertexData() {
         ObjVertex objVertex = null;
         switch (mController) {
-            /*case NEO3_CONTROLLER_LEFT:
+            case NEO3_CONTROLLER_LEFT:
+                objVertex = LoadObjUtil.loadFromAssets("neo3_controller_left.obj", mContext);
+                break;
+            case NEO3_CONTROLLER_RIGHT:
+                objVertex = LoadObjUtil.loadFromAssets("neo3_controller_right.obj", mContext);
+                break;
+            case NEO2_CONTROLLER_LEFT:
                 objVertex = LoadObjUtil.loadFromAssets("neo2_controller_left.obj", mContext);
                 break;
-            case NEO3_CONTROLLER_RIGHT:
-                objVertex = LoadObjUtil.loadFromAssets("neo2_controller_right.obj", mContext);
-                break;*/
-            case NEO3_CONTROLLER_LEFT:
-            case NEO2_CONTROLLER_LEFT:
-                objVertex = LoadObjUtil.loadFromSystem("/system/media/images/controller_left.obj");
-                if (objVertex == null) {
-                    objVertex = LoadObjUtil.loadFromAssets("neo2_controller_left.obj", mContext);
-                }
-                break;
-            case NEO3_CONTROLLER_RIGHT:
             case NEO2_CONTROLLER_RIGHT:
-                objVertex = LoadObjUtil.loadFromSystem("/system/media/images/controller_right.obj");
-                if (objVertex == null) {
-                    objVertex = LoadObjUtil.loadFromAssets("neo2_controller_right.obj", mContext);
-                }
+                objVertex = LoadObjUtil.loadFromAssets("neo2_controller_right.obj", mContext);
                 break;
             default:
+                objVertex = LoadObjUtil.loadFromSystem("/system/media/images/controller_right.obj");
                 break;
         }
 

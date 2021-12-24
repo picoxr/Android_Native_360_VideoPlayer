@@ -9,77 +9,71 @@ import com.picovr.cvclient.CVController;
 import com.picovr.cvclient.CVControllerListener;
 import com.picovr.cvclient.CVControllerManager;
 import com.picovr.piconativeplayerdemo.components.picocontroller.PicoController;
-import com.picovr.piconativeplayerdemo.components.picocontroller.g2.Raycast;
+import com.picovr.piconativeplayerdemo.components.picocontroller.Raycast;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.piconativeplayerdemo.utils.MatrixUtil;
-import com.picovr.piconativeplayerdemo.utils.SystemPropertiesUtil;
-import com.picovr.picovrlib.cvcontrollerclient.ControllerClient;
 import com.picovr.vractivity.Eye;
 import com.picovr.vractivity.HmdState;
 
+/**
+ * @author Admin
+ */
 public class NeoController extends PicoController {
-    private static final boolean DEBUG = true;
-    private CVControllerManager mCVControllerManager;
-    private CVController mCVMainController;
-    private CVController mCVSubController;
-    private float[] mOrientationLeft = new float[16];
+
+    private final CVControllerManager mCVControllerManager;
+    private final Controller mControllerRightModel;
+    private final Controller mControllerLeftModel;
+    private final Raycast mRayCast;
+    private CVController mCVRightController;
+    private CVController mCVLeftController;
     private float[] mOrientationRight = new float[16];
-    private Controller mControllerLeftModel;
-    private Controller mControllerRightModel;
-    private Raycast mRayCast;
-    private CVControllerListener mCVControllerListener = new CVControllerListener() {
-        @Override
-        public void onBindSuccess() {
-            setIsController(mCVMainController.getConnectState() + mCVSubController.getConnectState());
-        }
-
-        @Override
-        public void onBindFail() {
-
-        }
-
-        @Override
-        public void onThreadStart() {
-            setIsController(mCVMainController.getConnectState() + mCVSubController.getConnectState());
-        }
-
-        @Override
-        public void onConnectStateChanged(int i, int i1) {
-            if (DEBUG) {
-                Log.i("lhc", "onConnectStateChanged ： " + i + " " + ControllerClient.getMainControllerIndex());
-            }
-            setIsController(mCVMainController.getConnectState() + mCVSubController.getConnectState());
-        }
-
-        @Override
-        public void onMainControllerChanged(int i) {
-            if (DEBUG) {
-                Log.i("lhc", "onMainControllerChanged ： " + i + " " + ControllerClient.getMainControllerIndex());
-            }
-
-            mCVMainController = mCVControllerManager.getMainController();
-            mCVSubController = mCVControllerManager.getSubController();
-
-        }
-
-        @Override
-        public void onChannelChanged(int i, int i1) {
-
-        }
-    };
+    private float[] mOrientationLeft = new float[16];
 
     public NeoController(Context context, int flag) {
         super(context);
-        mRayCast = new Raycast(context, 0.08f, 65, 36);
+        mRayCast = new Raycast(context, 0.002f, 65, 36);
         if (3 == flag) {
-            mControllerLeftModel = new Controller(context, NEO_CONTROLLER.NEO3_CONTROLLER_LEFT);
             mControllerRightModel = new Controller(context, NEO_CONTROLLER.NEO3_CONTROLLER_RIGHT);
+            mControllerLeftModel = new Controller(context, NEO_CONTROLLER.NEO3_CONTROLLER_LEFT);
         } else {
-            mControllerLeftModel = new Controller(context, NEO_CONTROLLER.NEO2_CONTROLLER_LEFT);
             mControllerRightModel = new Controller(context, NEO_CONTROLLER.NEO2_CONTROLLER_RIGHT);
+            mControllerLeftModel = new Controller(context, NEO_CONTROLLER.NEO2_CONTROLLER_LEFT);
         }
 
         mCVControllerManager = new CVControllerManager(context);
+        CVControllerListener mCVControllerListener = new CVControllerListener() {
+            @Override
+            public void onBindSuccess() {
+                setIsController(mCVRightController.getConnectState() + mCVLeftController.getConnectState());
+            }
+
+            @Override
+            public void onBindFail() {
+
+            }
+
+            @Override
+            public void onThreadStart() {
+                setIsController(mCVRightController.getConnectState() + mCVLeftController.getConnectState());
+            }
+
+            @Override
+            public void onConnectStateChanged(int i, int i1) {
+                setIsController(mCVRightController.getConnectState() + mCVLeftController.getConnectState());
+            }
+
+            @Override
+            public void onMainControllerChanged(int i) {
+                mCVRightController = mCVControllerManager.getRightController();
+                mCVLeftController = mCVControllerManager.getLeftController();
+
+            }
+
+            @Override
+            public void onChannelChanged(int i, int i1) {
+
+            }
+        };
         mCVControllerManager.setListener(mCVControllerListener);
 
     }
@@ -87,9 +81,9 @@ public class NeoController extends PicoController {
     @Override
     public void onResume() {
         mCVControllerManager.bindService();
-        mCVMainController = mCVControllerManager.getMainController();
-        mCVSubController = mCVControllerManager.getSubController();
-        setIsController(mCVMainController.getConnectState() + mCVSubController.getConnectState());
+        mCVRightController = mCVControllerManager.getRightController();
+        mCVLeftController = mCVControllerManager.getLeftController();
+        setIsController(mCVRightController.getConnectState() + mCVLeftController.getConnectState());
     }
 
     @Override
@@ -99,13 +93,7 @@ public class NeoController extends PicoController {
 
     @Override
     public boolean getTriggerKeyEvent() {
-        boolean triggerEvent;
-        if (getMainIndex() == 0) {
-            triggerEvent = mCVMainController.getTriggerNum() > 200;
-        } else {
-            triggerEvent = mCVSubController.getTriggerNum() > 200;
-        }
-        return triggerEvent;
+        return mCVRightController.getTriggerNum() > 200 | mCVLeftController.getTriggerNum() > 200;
     }
 
     @Override
@@ -113,35 +101,30 @@ public class NeoController extends PicoController {
         return mControllerState > 0;
     }
 
-    private int getMainIndex() {
-        int index = ControllerClient.getMainControllerIndex();
-        return index;
-    }
-
     @Override
     public void onInitGL(float[] frustum) {
         mRayCast.onInitGL(frustum);
-        mControllerLeftModel.onInitGL(frustum);
         mControllerRightModel.onInitGL(frustum);
-        Matrix.setIdentityM(mOrientationLeft, 0);
         Matrix.setIdentityM(mOrientationRight, 0);
+        mControllerLeftModel.onInitGL(frustum);
+        Matrix.setIdentityM(mOrientationLeft, 0);
 
-        mCVMainController = mCVControllerManager.getMainController();
-        mCVSubController = mCVControllerManager.getSubController();
+        mCVRightController = mCVControllerManager.getRightController();
+        mCVLeftController = mCVControllerManager.getLeftController();
     }
 
     @Override
     public void onFrameBegin(float[] eyes, HmdState hmdState) {
         mRayCast.onFrameBegin(eyes, hmdState);
-        mControllerLeftModel.onFrameBegin(eyes, hmdState);
         mControllerRightModel.onFrameBegin(eyes, hmdState);
+        mControllerLeftModel.onFrameBegin(eyes, hmdState);
 
-        if (mCVMainController.getConnectState() == 1) {
-            setLeftOrientation(mCVMainController.getOrientation());
+        if (mCVRightController.getConnectState() == 1) {
+            setRightOrientation(mCVRightController.getOrientation());
         }
 
-        if (mCVSubController.getConnectState() == 1) {
-            setRightOrientation(mCVSubController.getOrientation());
+        if (mCVLeftController.getConnectState() == 1) {
+            setLeftOrientation(mCVLeftController.getOrientation());
         }
 
         float[] hmdOrientation = hmdState.getOrientation();
@@ -157,23 +140,22 @@ public class NeoController extends PicoController {
         hmdData[6] = hmdPosition[2];
 
         mCVControllerManager.updateControllerData(hmdData);
-
     }
 
     @Override
     public void onDrawSelf(Eye eye) {
-        if (mCVMainController.getConnectState() == 1) {
-            drawController(eye, 15f, mOrientationLeft, mControllerLeftModel, getMainIndex() == 0);
+        if (mCVRightController.getConnectState() == 1) {
+            drawController(eye, mCVRightController.getPosition(), mOrientationRight, mControllerRightModel, true);
         }
 
-        if (mCVSubController.getConnectState() == 1) {
-            drawController(eye, -15f, mOrientationRight, mControllerRightModel, getMainIndex() == 1);
+        if (mCVLeftController.getConnectState() == 1) {
+            drawController(eye, mCVLeftController.getPosition(), mOrientationLeft, mControllerLeftModel, false);
         }
     }
 
-    private void drawController(Eye eye, float v, float[] orientation, Controller controller, boolean isMain) {
+    private void drawController(Eye eye, float[] pos, float[] orientation, Controller controller, boolean isMain) {
         MatrixTool.pushMatrix();
-        MatrixTool.translate(0f, v, 40f);
+        MatrixTool.translate(pos[2], -pos[0], -pos[1]);
         MatrixTool.rotate(90, 0, 0, 1);
         MatrixTool.multiplyMM(orientation);
 
@@ -184,7 +166,7 @@ public class NeoController extends PicoController {
         MatrixTool.pushMatrix();
         MatrixTool.rotate(90, 1, 0, 0);
         MatrixTool.rotate(180, 0, 0, 1);
-        MatrixTool.scale(80f, 80f, 80f);
+        MatrixTool.scale(0.01f, 0.01f, 0.01f);
         controller.onDrawSelf(eye);
         MatrixTool.popMatrix();
 
@@ -193,24 +175,19 @@ public class NeoController extends PicoController {
 
         if (isMain) {
             MatrixTool.pushMatrix();
-            MatrixTool.translate(0, 6, 0);
+            MatrixTool.translate(0, 0.09f, -0.025f);
             mRayCast.onDrawSelf(eye);
             MatrixTool.popMatrix();
         }
         MatrixTool.popMatrix();
     }
 
-    private void setLeftOrientation(float[] orientation) {
-        mOrientationLeft = MatrixUtil.quaternion2Matrix(new float[]{orientation[0], -orientation[2], orientation[1], orientation[3]});
-    }
-
     private void setRightOrientation(float[] orientation) {
         mOrientationRight = MatrixUtil.quaternion2Matrix(new float[]{orientation[0], -orientation[2], orientation[1], orientation[3]});
     }
 
-    private int getMainControllerIndex() {
-        int index = Integer.parseInt(SystemPropertiesUtil.getSystemProperties("persist.pvrcon.main.controller", "-1"));
-        return index;
+    private void setLeftOrientation(float[] orientation) {
+        mOrientationLeft = MatrixUtil.quaternion2Matrix(new float[]{orientation[0], -orientation[2], orientation[1], orientation[3]});
     }
 
     public enum NEO_CONTROLLER {

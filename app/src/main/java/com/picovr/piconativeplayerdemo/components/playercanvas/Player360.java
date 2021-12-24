@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class Player360 extends BasicComponent {
     private static final float radius = 100f;
     private static final double angleSpan = Math.PI / 90f;
-    private  int mVCount = 0;
+    private int mVCount = 0;
     private FloatBuffer mPosBuffer;
     private FloatBuffer mTexBuffer;
     private int mTextureId;
@@ -38,11 +38,12 @@ public class Player360 extends BasicComponent {
     Player360(Context context) {
         super(context);
     }
+
     @Override
     public void onInitGL(float[] frustum) {
         initVertexData();
         initShader();
-        System.arraycopy(frustum,0,mProjMatrix,0,16);
+        System.arraycopy(frustum, 0, mProjMatrix, 0, 16);
     }
 
     @Override
@@ -65,22 +66,27 @@ public class Player360 extends BasicComponent {
     }
 
     private float[] getFinalMatrix() {
-        float[] mVPMatrix=new float[16];
+        float[] mVPMatrix = new float[16];
         Matrix.multiplyMM(mVPMatrix, 0, mCameraMatrix, 0, MatrixTool.getCurrentMatrix(), 0);
         Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVPMatrix, 0);
         return mVPMatrix;
     }
 
-    float[] getTransformMatrix() {
-        return mSTMatrix;
-    }
-
-    int getTextureId(){
-        return mTextureId;
-    }
-
     private void initVertexData() {
         calculateAttribute();
+    }
+
+    private void initShader() {
+        String vertexShader = ShaderUtil.loadFromRaw(mContext, R.raw.vertex_shader);
+        String fragmentShader = ShaderUtil.loadFromRaw(mContext, R.raw.fragment_shader);
+        mProgram = ShaderUtil.createProgram(vertexShader, fragmentShader);
+        ShaderUtil.checkGlError("programId program params");
+
+        muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+        mUSTMMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uSTMatrix");
+        mATextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
+        mTextureId = TextureUtil.createTexture3D();
     }
 
     private void calculateAttribute() {
@@ -153,19 +159,6 @@ public class Player360 extends BasicComponent {
         mTexBuffer = convertToFloatBuffer(textureVertix);
     }
 
-    private void initShader() {
-        String vertexShader = ShaderUtil.loadFromRaw(mContext, R.raw.vertex_shader);
-        String fragmentShader= ShaderUtil.loadFromRaw(mContext, R.raw.fragment_shader);
-        mProgram=ShaderUtil.createProgram(vertexShader,fragmentShader);
-        ShaderUtil.checkGlError("programId program params");
-
-        muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
-        mUSTMMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uSTMatrix");
-        mATextureCoordHandle= GLES20.glGetAttribLocation(mProgram,"aTexCoord");
-        mTextureId = TextureUtil.createTexture3D();
-    }
-
     private FloatBuffer convertToFloatBuffer(ArrayList<Float> data) {
         float[] d = new float[data.size()];
         for (int i = 0; i < d.length; i++) {
@@ -178,6 +171,14 @@ public class Player360 extends BasicComponent {
         ret.put(d);
         ret.position(0);
         return ret;
+    }
+
+    float[] getTransformMatrix() {
+        return mSTMatrix;
+    }
+
+    int getTextureId() {
+        return mTextureId;
     }
 
 }

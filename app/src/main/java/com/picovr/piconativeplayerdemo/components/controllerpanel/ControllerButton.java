@@ -122,26 +122,6 @@ public class ControllerButton extends TouchableObject {
         GLES20.glDisableVertexAttribArray(maTextureCoordHandle);
     }
 
-    /*private void initVertexData() {
-
-        ByteBuffer vbb = ByteBuffer.allocateDirect(BTN_MATRIX.length * 4);
-        vbb.order(ByteOrder.nativeOrder());
-        mVertexBuffer = vbb.asFloatBuffer();
-        mVertexBuffer.put(BTN_MATRIX);
-        mVertexBuffer.position(0);
-
-        ByteBuffer cbb = ByteBuffer.allocateDirect(BTN_TEXTURE_MATRIX.length * 4);
-        cbb.order(ByteOrder.nativeOrder());
-        mTexCoorBuffer = cbb.asFloatBuffer();
-        mTexCoorBuffer.put(BTN_TEXTURE_MATRIX);
-        mTexCoorBuffer.position(0);
-
-        mPlayTexture = TextureUtil.initTexture(mContext, R.drawable.play);
-        mPlayPickUpTexture = TextureUtil.initTexture(mContext, R.drawable.play_pickup);
-        mPauseTexture = TextureUtil.initTexture(mContext, R.drawable.pause);
-        mPausePickUpTexture = TextureUtil.initTexture(mContext, R.drawable.pause_pickup);
-    }*/
-
     private void initShader() {
         String vertexShader = ShaderUtil.loadFromAssetsFile("vertex.sh", mContext.getResources());
         String fragmentShader = ShaderUtil.loadFromAssetsFile("fragment.sh", mContext.getResources());

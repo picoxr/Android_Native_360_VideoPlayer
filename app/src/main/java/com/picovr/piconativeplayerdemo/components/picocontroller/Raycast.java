@@ -1,4 +1,4 @@
-package com.picovr.piconativeplayerdemo.components.picocontroller.g2;
+package com.picovr.piconativeplayerdemo.components.picocontroller;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -20,21 +20,19 @@ import java.nio.FloatBuffer;
 
 public class Raycast extends BasicComponent {
 
+    private final float[] mProjMatrix = new float[16];
+    private final float[] mCameraMatrix = new float[16];
+    private final float mRadius;
+    private final float mHeight;
+    private final int mN;
     private int mProgram;
     private int muMVPMatrixHandle;
     private int maPositionHandle;
     private int maTexCoorHandle;
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTexCoorBuffer;
-
-    private float[] mProjMatrix = new float[16];
-    private float[] mCameraMatrix = new float[16];
-
     private int mTexture;
     private int vCount = 0;
-    private float mRadius;
-    private float mHeight;
-    private int mN;
 
     public Raycast(Context context, float r, float h, int n) {
         super(context);
@@ -87,9 +85,14 @@ public class Raycast extends BasicComponent {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTexture);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vCount);
-
     }
 
+    private float[] getFinalMatrix() {
+        float[] mVPMatrix = new float[16];
+        Matrix.multiplyMM(mVPMatrix, 0, mCameraMatrix, 0, MatrixTool.getCurrentMatrix(), 0);
+        Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVPMatrix, 0);
+        return mVPMatrix;
+    }
 
     private void initVertexData() {
         float angdegSpan = 360.0f / mN;
@@ -164,12 +167,5 @@ public class Raycast extends BasicComponent {
         maPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         maTexCoorHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
         muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-    }
-
-    private float[] getFinalMatrix() {
-        float[] mVPMatrix = new float[16];
-        Matrix.multiplyMM(mVPMatrix, 0, mCameraMatrix, 0, MatrixTool.getCurrentMatrix(), 0);
-        Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVPMatrix, 0);
-        return mVPMatrix;
     }
 }

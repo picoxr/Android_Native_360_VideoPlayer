@@ -8,7 +8,6 @@ import com.picovr.piconativeplayerdemo.model.ObjVertex;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,7 +73,7 @@ public class LoadObjUtil {
             } else if (tempsa[0].trim().equals("f")) {
                 int length = tempsa.length;
                 for (int i = 1; i < length - 2; i++) {
-                    String[] temp = tempsa[1].split("/");
+                    String[] temp = tempsa[i].split("/");
                     setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);
                     temp = tempsa[i + 1].split("/");
                     setMatrix(vec_vertices, res_vertices, vec_uvs, res_uvs, vec_normals, res_normals, temp);

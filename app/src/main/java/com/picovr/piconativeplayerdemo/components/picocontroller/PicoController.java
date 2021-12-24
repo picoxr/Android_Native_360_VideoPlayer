@@ -16,12 +16,12 @@ public abstract class PicoController extends BasicComponent {
 
     public abstract void onResume();
 
-    public abstract  void onPause();
+    public abstract void onPause();
 
     public abstract boolean getTriggerKeyEvent();
 
     public void setIsController(int controllerState) {
-        mControllerState = controllerState ;
+        mControllerState = controllerState;
     }
 
     public abstract boolean isController();

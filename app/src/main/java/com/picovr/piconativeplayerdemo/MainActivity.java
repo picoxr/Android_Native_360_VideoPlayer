@@ -25,7 +25,6 @@ import com.picovr.vractivity.VRActivity;
 
 public class MainActivity extends VRActivity implements RenderInterface {
 
-    private static final boolean DEBUG = false;
     private static final float Z_NEAR = 0.1f;
     private static final float Z_FAR = 1000.0f;
 
@@ -78,9 +77,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (DEBUG) {
-            Log.i("lhc", "onKeyDown" + keyCode);
-        }
         if (keyCode == 1001) {
             click();
         }
@@ -112,6 +108,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         mControllerPanel.setIsPlaying(mPlayer.isPlaying());
 
         setOrientation(headOrientation);
+
     }
 
     public void setOrientation(float[] orientation) {
@@ -149,8 +146,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
     private void checkPickUp() {
         int pick = PickUpManager.getInstance().getPickUpIndex(mPicoController.isController());
         if (pick >= 0) {
-            if (DEBUG)
-                Log.i("lhc", "getPickUpIndex : " + pick);
             TouchableObject object = PickUpManager.getInstance().getTouchableObject(pick);
             setClick(object);
             if (mPicoController.isController()) {
@@ -202,7 +197,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         GLES20.glViewport(0, 0, i, i1);
         GLES20.glClearColor(0f, 0.0f, 0.0f, 1f);
         Matrix.setLookAtM(mCamera, 0, 0f, 0.0f, 0.0f, -1.0f, 0f, 0f, 0f, 0.0f, -1.0f);
-        float[] frustum = setFrustumM(Z_NEAR, Z_FAR, 51.f, 51.f, 51.f, 51.f, 0);
+        float[] frustum = setFrustumM(Z_NEAR, Z_FAR, 49.f, 49.f, 49.f, 49.f, 0);
         mPlayer.onInitGL(frustum);
         mPicoController.onInitGL(frustum);
         mCrossHair.onInitGL(frustum);

@@ -3,11 +3,10 @@ package com.picovr.piconativeplayerdemo.components.picocontroller.g2;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
 
-import com.picovr.piconativeplayerdemo.model.ObjVertex;
 import com.picovr.piconativeplayerdemo.R;
 import com.picovr.piconativeplayerdemo.components.BasicComponent;
+import com.picovr.piconativeplayerdemo.model.ObjVertex;
 import com.picovr.piconativeplayerdemo.utils.LoadObjUtil;
 import com.picovr.piconativeplayerdemo.utils.MatrixTool;
 import com.picovr.piconativeplayerdemo.utils.ShaderUtil;
@@ -29,8 +28,8 @@ public class Controller extends BasicComponent {
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTexCoorBuffer;
 
-    private float[] mProjMatrix = new float[16];
-    private float[] mVMatrix = new float[16];
+    private final float[] mProjMatrix = new float[16];
+    private final float[] mVMatrix = new float[16];
 
     private int mTexture;
 
@@ -52,13 +51,8 @@ public class Controller extends BasicComponent {
 
     @Override
     public void onDrawSelf(Eye eye) {
-        GLES20.glDisable(GLES20.GL_BLEND);
-        ShaderUtil.checkGlError("glUseProgram");
         GLES20.glUseProgram(mProgram);
         ShaderUtil.checkGlError("glUseProgram");
-
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
-        GLES20.glCullFace(GLES20.GL_BACK);
 
         GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, getFinalMatrix(), 0);
         GLES20.glEnableVertexAttribArray(maPositionHandle);
@@ -86,18 +80,17 @@ public class Controller extends BasicComponent {
 
         GLES20.glDisableVertexAttribArray(maPositionHandle);
         GLES20.glDisableVertexAttribArray(maTexCoorHandle);
-        GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+    }
 
+    private float[] getFinalMatrix() {
+        float[] mVPMatrix = new float[16];
+        Matrix.multiplyMM(mVPMatrix, 0, mVMatrix, 0, MatrixTool.getCurrentMatrix(), 0);
+        Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVPMatrix, 0);
+        return mVPMatrix;
     }
 
     private void initVertexData() {
-
-        ObjVertex objVertex = null;
-        objVertex = LoadObjUtil.loadFromSystem("/system/media/images/Hummingbird.obj");
-        if (objVertex == null) {
-            objVertex = LoadObjUtil.loadFromAssets("g2_controller.obj", mContext);
-        }
+        ObjVertex objVertex = LoadObjUtil.loadFromAssets("g2_controller.obj", mContext);
         mVertexCount = objVertex.getVerticesCount();
         float[] ver = objVertex.getVertices();
         float[] uv = objVertex.getUvs();
@@ -123,20 +116,8 @@ public class Controller extends BasicComponent {
         maTexCoorHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
         muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
 
-        mTexture = TextureUtil.initTextureFile(mContext,"/system/media/images/Hummingbird.png");
-        Log.i("lhc", "initTextureFile " + mTexture);
-        if (mTexture == 0) {
-            mTexture = TextureUtil.initTexture(mContext, R.drawable.g2_controller);
-            Log.i("lhc", "initTexture " + mTexture);
-        }
-    }
-
-    private float[] getFinalMatrix()
-    {
-        float[] mVPMatrix=new float[16];
-        Matrix.multiplyMM(mVPMatrix, 0, mVMatrix, 0, MatrixTool.getCurrentMatrix(), 0);
-        Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVPMatrix, 0);
-        return mVPMatrix;
+//        mTexture = TextureUtil.initTexture(mContext, R.drawable.g2_controller);
+        mTexture = TextureUtil.initTextureFile(mContext, "/system/media/images/Hummingbird.png");
     }
 
 }
